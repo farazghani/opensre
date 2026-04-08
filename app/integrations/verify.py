@@ -58,7 +58,7 @@ SUPPORTED_VERIFY_SERVICES = (
     "kafka",
     "clickhouse",
     "bitbucket",
-    "confluence"
+    "confluence",
 )
 CORE_VERIFY_SERVICES = frozenset({"grafana", "datadog", "honeycomb", "coralogix", "aws"})
 _SUPPORTED_GRAFANA_TYPES = ("loki", "tempo", "prometheus")
@@ -383,7 +383,7 @@ def resolve_effective_integrations() -> dict[str, dict[str, Any]]:
     confluence_integration = classified_integrations.get("confluence")
     if isinstance(confluence_integration, dict):
         effective["confluence"] = {
-            "source": "local env",
+            "source": source_by_service.get("confluence", "local env"),
             "config": {
                 "base_url": str(confluence_integration.get("base_url", "")).strip(),
                 "email": str(confluence_integration.get("email", "")).strip(),

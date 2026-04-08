@@ -345,6 +345,7 @@ def validate_confluence_integration(
     result = validate_confluence_config(config)
     return IntegrationHealthResult(ok=result.ok, detail=result.detail)
 
+
 def validate_notion_integration(*, api_key: str, database_id: str) -> IntegrationHealthResult:
     """Validate Notion connectivity by querying the target database."""
     import httpx

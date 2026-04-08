@@ -546,6 +546,24 @@ def _load_env_integrations() -> list[dict[str, Any]]:
                 "credentials": gitlab_config.model_dump(),
             }
         )
+
+confluence_base_url = os.getenv("CONFLUENCE_BASE_URL", "").strip()
+    confluence_email = os.getenv("CONFLUENCE_EMAIL", "").strip()
+    confluence_api_token = os.getenv("CONFLUENCE_API_TOKEN", "").strip()
+    if confluence_base_url and confluence_email and confluence_api_token:
+        confluence_config = ConfluenceIntegrationConfig.model_validate({
+            "base_url": confluence_base_url,
+            "email": confluence_email,
+            "api_token": confluence_api_token,
+            "space_key": os.getenv("CONFLUENCE_SPACE_KEY", "").strip(),
+        })
+        integrations.append({
+            "id": "env-confluence",
+            "service": "confluence",
+            "status": "active",
+            "credentials": confluence_config.model_dump(exclude={"integration_id"}),
+        })
+
     mongodb_connection_string = os.getenv("MONGODB_CONNECTION_STRING", "").strip()
     if mongodb_connection_string:
         mongodb_config = build_mongodb_config(
