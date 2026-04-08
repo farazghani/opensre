@@ -252,6 +252,25 @@ def detect_sources(
     if log_file:
         sources["local_file"] = {"log_file": log_file}
 
+    # Detect Confluence sources from resolved integrations so the planner can
+    # treat docs/runbooks as a first-class evidence source during incidents.
+    if resolved_integrations and resolved_integrations.get("confluence"):
+        confluence_int = resolved_integrations["confluence"]
+        base_url = str(confluence_int.get("base_url", "")).strip()
+        email = str(confluence_int.get("email", "")).strip()
+        api_token = str(confluence_int.get("api_token", "")).strip()
+        if base_url and email and api_token:
+            confluence_params: dict[str, Any] = {
+                "base_url": base_url,
+                "email": email,
+                "api_token": api_token,
+                "connection_verified": True,
+            }
+            space_key = str(confluence_int.get("space_key", "")).strip()
+            if space_key:
+                confluence_params["space_key"] = space_key
+            sources["confluence"] = confluence_params
+
     # Detect Lambda sources
     # Collect all Lambda functions from annotations (primary + upstream/downstream)
     lambda_functions: list[str] = []

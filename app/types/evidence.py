@@ -29,4 +29,5 @@ EvidenceSource = Literal[
     "prefect",
     "gitlab",
     "bitbucket",
+    "confluence",
 ]

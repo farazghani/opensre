@@ -11,6 +11,7 @@ import requests
 
 from app.auth.jwt_auth import extract_org_id_from_jwt
 from app.config import get_tracer_base_url
+from app.integrations.clients.confluence import build_confluence_config, validate_confluence_config
 from app.integrations.github_mcp import build_github_mcp_config, validate_github_mcp_config
 from app.integrations.models import (
     AWSIntegrationConfig,
@@ -57,6 +58,7 @@ SUPPORTED_VERIFY_SERVICES = (
     "kafka",
     "clickhouse",
     "bitbucket",
+    "confluence"
 )
 CORE_VERIFY_SERVICES = frozenset({"grafana", "datadog", "honeycomb", "coralogix", "aws"})
 _SUPPORTED_GRAFANA_TYPES = ("loki", "tempo", "prometheus")
@@ -378,7 +380,18 @@ def resolve_effective_integrations() -> dict[str, dict[str, Any]]:
                     "app_password": os.getenv("BITBUCKET_APP_PASSWORD", "").strip(),
                 },
             }
-
+    confluence_integration = classified_integrations.get("confluence")
+    if isinstance(confluence_integration , dict):
+        effective["confluence"] = {
+            "source" : "local env",
+            "config": {
+            "base_url": str(confluence_integration.get("base_url", "")).strip(),
+            "email": str(confluence_integration.get("email", "")).strip(),
+            "api_token": str(confluence_integration.get("api_token", "")).strip(),
+            "space_key": str(confluence_integration.get("space_key", "")).strip(),
+        },  
+     }
+        
     return EffectiveIntegrations.model_validate(effective).model_dump(exclude_none=True)
 
 
@@ -837,6 +850,29 @@ def _verify_bitbucket(source: str, config: dict[str, Any]) -> dict[str, str]:
     )
 
 
+def _verify_confluence(source: str, config: dict[str, Any]) -> dict[str, str]:
+    try:
+        confluence_config = build_confluence_config(config)
+    except Exception as err:
+        return _result("confluence", source, "missing", str(err))
+
+    if not (confluence_config.base_url and confluence_config.email and confluence_config.api_token):
+        return _result(
+            "confluence",
+            source,
+            "missing",
+            "Missing base_url, email, or api_token.",
+        )
+
+    result = validate_confluence_config(confluence_config)
+    return _result(
+        "confluence",
+        source,
+        "passed" if result.ok else "failed",
+        result.detail,
+    )
+
+
 def verify_integrations(
     service: str | None = None,
     *,
@@ -905,6 +941,8 @@ def verify_integrations(
             results.append(_verify_clickhouse(source, config))
         elif current_service == "bitbucket":
             results.append(_verify_bitbucket(source, config))
+        elif current_service == "confluence":
+            results.append(_verify_confluence(source, config))
 
     return results
 

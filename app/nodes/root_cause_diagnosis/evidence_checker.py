@@ -13,19 +13,18 @@ _ERROR_ANNOTATION_KEYS = ("error", "error_message", "log_excerpt", "failed_steps
 
 # Evidence keys whose presence (even with empty values) confirms investigation was attempted.
 # An empty grafana_logs list is itself a healthy signal: no errors found during investigation.
-_INVESTIGATED_EVIDENCE_KEYS = frozenset(
-    {
-        "grafana_logs",
-        "grafana_metrics",
-        "grafana_alert_rules",
-        "aws_cloudwatch_metrics",
-        "aws_rds_events",
-        "aws_performance_insights",
-        "cloudwatch_logs",
-        "datadog_logs",
-        "datadog_monitors",
-    }
-)
+_INVESTIGATED_EVIDENCE_KEYS = frozenset({
+    "grafana_logs",
+    "grafana_metrics",
+    "grafana_alert_rules",
+    "aws_cloudwatch_metrics",
+    "aws_rds_events",
+    "aws_performance_insights",
+    "cloudwatch_logs",
+    "datadog_logs",
+    "datadog_monitors",
+    "confluence_docs",
+})
 
 
 def check_evidence_availability(
@@ -54,6 +53,7 @@ def check_evidence_availability(
         or evidence.get("datadog_logs")
         or evidence.get("datadog_monitors")
         or evidence.get("datadog_events")
+        or evidence.get("confluence_docs")
         or evidence.get("s3_object", {}).get("found")
         or evidence.get("s3_audit_payload", {}).get("found")
         or evidence.get("s3_marker")

@@ -75,6 +75,15 @@ def _build_available_sources_hint(available_sources: dict[str, dict]) -> str:
 - Note: Local file logs can be read directly"""
         )
 
+    if "confluence" in available_sources:
+        confluence = available_sources["confluence"]
+        hints.append(
+            f"""Confluence Knowledge Base Available:
+- Base URL: {confluence.get("base_url")}
+- Space Key: {confluence.get("space_key") or "all spaces"}
+- Use search_confluence_docs to find runbooks, operational docs, incident notes, and recovery procedures"""
+        )
+
     if "tracer_web" in available_sources:
         tracer = available_sources["tracer_web"]
         hints.append(

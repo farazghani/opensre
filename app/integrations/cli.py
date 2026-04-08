@@ -353,6 +353,26 @@ def _setup_mongodb_atlas() -> None:
         },
     )
 
+def _setup_confluence() -> None:
+    base_url = _p("Confluence base URL", default="https://your-company.atlassian.net")
+    email = _p("Atlassian email")
+    api_token = _p("API token", secret=True)
+    space_key = _p("Space key (optional)")
+
+    if not base_url or not email or not api_token:
+        _die("base_url, email, and api_token are required.")
+
+    upsert_integration(
+        "confluence",
+        {
+            "credentials": {
+                "base_url": base_url,
+                "email": email,
+                "api_token": api_token,
+                "space_key": space_key,
+            }
+        },
+    )
 
 _HANDLERS: dict[str, Any] = {
     "aws": _setup_aws,
@@ -369,6 +389,7 @@ _HANDLERS: dict[str, Any] = {
     "github": _setup_github,
     "sentry": _setup_sentry,
     "mongodb": _setup_mongodb,
+    "confluence": _setup_confluence
 }
 
 SUPPORTED = ", ".join(_HANDLERS)

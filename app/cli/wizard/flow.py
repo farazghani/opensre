@@ -61,6 +61,12 @@ def validate_coralogix_integration(**kwargs):
     return _validate(**kwargs)
 
 
+def validate_confluence_integration(**kwargs):
+    from app.cli.wizard.integration_health import validate_confluence_integration as _validate
+
+    return _validate(**kwargs)
+
+
 def validate_slack_webhook(**kwargs):
     from app.cli.wizard.integration_health import validate_slack_webhook as _validate
 
@@ -853,6 +859,56 @@ def _configure_sentry() -> tuple[str, str]:
         _console.print("[dim]Try again or press Ctrl+C to cancel.[/]")
 
 
+def _configure_confluence() -> tuple[str, str]:
+    _, credentials = _integration_defaults("confluence")
+    _console.print("\n[bold]Confluence Integration[/bold]")
+    _console.print("Use an Atlassian account with access to runbooks and operational docs.\n")
+
+    while True:
+        base_url = _prompt_value(
+            "Confluence base URL",
+            default=_string_value(credentials.get("base_url"), "https://your-company.atlassian.net"),
+        )
+        email = _prompt_value(
+            "Atlassian email",
+            default=_string_value(credentials.get("email")),
+        )
+        api_token = _prompt_value(
+            "API token",
+            default=_string_value(credentials.get("api_token")),
+            secret=True,
+        )
+        space_key = _prompt_value(
+            "Space key (optional)",
+            default=_string_value(credentials.get("space_key")),
+            allow_empty=True,
+        )
+
+        with _console.status("Validating Confluence integration...", spinner="dots"):
+            result = validate_confluence_integration(
+                base_url=base_url,
+                email=email,
+                api_token=api_token,
+                space_key=space_key,
+            )
+        _render_integration_result("Confluence", result)
+        if result.ok:
+            upsert_integration(
+                "confluence",
+                {
+                    "credentials": {
+                        "base_url": base_url,
+                        "email": email,
+                        "api_token": api_token,
+                        "space_key": space_key,
+                    }
+                },
+            )
+            env_path = sync_env_values({})
+            return "Confluence", str(env_path)
+        _console.print("[dim]Try again or press Ctrl+C to cancel.[/]")
+
+
 def _configure_notion() -> tuple[str, str]:
     _, credentials = _integration_defaults("notion")
     _console.print("\n[bold]Notion Integration[/bold]")
@@ -1032,6 +1088,11 @@ def _configure_selected_integrations() -> tuple[list[str], str | None]:
         Choice(
             value="sentry", label="Sentry", hint="Investigate errors, events, and issue history"
         ),
+        Choice(
+            value="confluence",
+            label="Confluence",
+            hint="Search runbooks, docs, and operational procedures",
+        ),
         Choice(value="gitlab", label="Gitlab", hint="Let the agent inspect repos, PRs, and issues"),
         Choice(
             value="google_docs",
@@ -1084,6 +1145,7 @@ def _configure_selected_integrations() -> tuple[list[str], str | None]:
         "aws": _configure_aws,
         "github": _configure_github_mcp,
         "sentry": _configure_sentry,
+        "confluence": _configure_confluence,
         "gitlab": _configure_gitlab,
         "google_docs": _configure_google_docs,
         "vercel": _configure_vercel,
@@ -1101,6 +1163,7 @@ def _configure_selected_integrations() -> tuple[list[str], str | None]:
         "aws": "aws",
         "github": "github mcp",
         "sentry": "sentry",
+        "confluence": "confluence",
         "gitlab": "gitlab",
         "google_docs": "google docs",
         "vercel": "vercel",

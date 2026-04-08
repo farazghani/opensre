@@ -30,6 +30,7 @@ ALLOWED_EVIDENCE_SOURCES = [
     "datadog_events",
     "vercel",
     "github",
+    "confluence",
 ]
 
 

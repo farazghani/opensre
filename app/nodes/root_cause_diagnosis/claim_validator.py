@@ -54,6 +54,7 @@ def validate_claim(claim: str, evidence: dict[str, Any]) -> bool:
     claim_lower = claim.lower()
 
     has_dd = _has_datadog_evidence(evidence)
+    has_confluence = bool(evidence.get("confluence_docs"))
 
     if (
         "log" in claim_lower or "error" in claim_lower or "fail" in claim_lower
@@ -108,6 +109,9 @@ def validate_claim(claim: str, evidence: dict[str, Any]) -> bool:
     if ("s3" in claim_lower or "bucket" in claim_lower or "object" in claim_lower) and not (
         evidence.get("s3_object") or evidence.get("s3_objects")
     ):
+        return False
+
+    if any(kw in claim_lower for kw in ("runbook", "playbook", "documentation", "doc", "procedure", "operational")) and not has_confluence:
         return False
 
     if "schema" in claim_lower and not (
@@ -195,6 +199,8 @@ def extract_evidence_sources(claim: str, evidence: dict[str, Any]) -> list[str]:
         "metadata"
     ):
         sources.append("s3_metadata")
+    if any(kw in claim_lower for kw in ("runbook", "playbook", "documentation", "doc", "procedure", "operational")) and evidence.get("confluence_docs"):
+        sources.append("confluence_docs")
     if ("vendor" in claim_lower or "external" in claim_lower) and (
         evidence.get("vendor_audit_from_logs") or evidence.get("s3_audit_payload")
     ):

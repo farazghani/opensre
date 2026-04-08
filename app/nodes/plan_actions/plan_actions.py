@@ -170,6 +170,15 @@ def plan_actions(
     ):
         plan.actions.insert(0, "get_s3_object")
 
+    # Ensure Confluence is queried when the integration is available.
+    # This keeps runbooks/docs evidence flowing even if the LLM under-prioritizes it.
+    if (
+        "confluence" in available_sources
+        and "search_confluence_docs" not in plan.actions
+        and "search_confluence_docs" in available_action_names
+    ):
+        plan.actions.insert(0, "search_confluence_docs")
+
     debug_print(f"Plan: {plan.actions} | {plan.rationale[:100]}...")
     if len(plan.actions) > tool_budget:
         debug_print(f"WARNING: Plan exceeds tool budget ({len(plan.actions)} > {tool_budget})")

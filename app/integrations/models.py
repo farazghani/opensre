@@ -295,6 +295,31 @@ class PrefectIntegrationConfig(StrictConfigModel):
     def _normalize_str(cls, value: object) -> str:
         return str(value or "").strip()
 
+class ConfluenceIntegrationConfig(StrictConfigModel):
+    """Normalized Confluence credentials used by resolution and verification flows."""
+
+    base_url: str
+    email: str
+    api_token: str
+    space_key: str = ""
+    integration_id: str = ""
+
+    @field_validator("base_url", mode="before")
+    @classmethod
+    def _normalize_base_url(cls, value: object) -> str:
+        return str(value or "").strip().rstrip("/")
+
+    @field_validator("email", "api_token", "space_key", mode="before")
+    @classmethod
+    def _normalize_string_fields(cls, value: object) -> str:
+        return str(value or "").strip()
+
+    @model_validator(mode="after")
+    def _validate_base_url(self) -> "ConfluenceIntegrationConfig":
+        parsed = urlparse(self.base_url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("Confluence base_url must be a valid HTTP or HTTPS URL.")
+        return self
 
 class EffectiveIntegrationEntry(StrictConfigModel):
     """Resolved integration entry with source metadata."""
@@ -327,3 +352,4 @@ class EffectiveIntegrations(StrictConfigModel):
     kafka: EffectiveIntegrationEntry | None = None
     clickhouse: EffectiveIntegrationEntry | None = None
     bitbucket: EffectiveIntegrationEntry | None = None
+    confluence: EffectiveIntegrationEntry | None = None

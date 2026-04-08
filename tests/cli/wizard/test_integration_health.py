@@ -6,6 +6,7 @@ import types
 from app.cli.wizard.integration_health import (
     validate_aws_integration,
     validate_coralogix_integration,
+    validate_confluence_integration,
     validate_datadog_integration,
     validate_github_mcp_integration,
     validate_grafana_integration,
@@ -115,6 +116,31 @@ def test_validate_coralogix_integration_fails(monkeypatch) -> None:
 
     assert result.ok is False
     assert "http 401" in result.detail.lower()
+
+
+def test_validate_confluence_integration_uses_shared_validator(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def _validate(config):
+        captured["config"] = config
+        return types.SimpleNamespace(ok=True, detail="Confluence ok")
+
+    monkeypatch.setattr("app.cli.wizard.integration_health.validate_confluence_config", _validate)
+
+    result = validate_confluence_integration(
+        base_url="https://example.atlassian.net",
+        email="ops@example.com",
+        api_token="token",
+        space_key="SRE",
+    )
+
+    assert result.ok is True
+    assert result.detail == "Confluence ok"
+    config = captured["config"]
+    assert config.base_url == "https://example.atlassian.net"
+    assert config.email == "ops@example.com"
+    assert config.api_token == "token"
+    assert config.space_key == "SRE"
 
 
 def test_validate_slack_webhook_succeeds_with_non_posting_probe(monkeypatch) -> None:

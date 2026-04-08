@@ -287,6 +287,15 @@ def _map_github_commits(data: dict) -> dict:
     }
 
 
+def _map_confluence_docs(data: dict) -> dict:
+    return {
+        "confluence_docs": data.get("results", []),
+        "confluence_query": data.get("query", ""),
+        "confluence_cql": data.get("cql", ""),
+        "confluence_space_key": data.get("space_key", ""),
+    }
+
+
 EVIDENCE_MAPPERS: dict[str, Callable[[dict], dict]] = {
     "get_failed_jobs": _map_failed_jobs,
     "get_failed_tools": _map_failed_tools,
@@ -317,6 +326,7 @@ EVIDENCE_MAPPERS: dict[str, Callable[[dict], dict]] = {
     "search_github_code": _map_github_code_search,
     "get_github_file_contents": _map_github_file_contents,
     "list_github_commits": _map_github_commits,
+    "search_confluence_docs": _map_confluence_docs,
 }
 
 

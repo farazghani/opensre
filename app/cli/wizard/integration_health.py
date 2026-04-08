@@ -11,11 +11,13 @@ from app.integrations.gitlab import build_gitlab_config, validate_gitlab_config
 from app.integrations.models import (
     AWSIntegrationConfig,
     CoralogixIntegrationConfig,
+    ConfluenceIntegrationConfig,
     GoogleDocsIntegrationConfig,
     GrafanaIntegrationConfig,
     HoneycombIntegrationConfig,
     SlackWebhookConfig,
 )
+from app.integrations.clients.confluence import build_confluence_config, validate_confluence_config
 from app.integrations.sentry import build_sentry_config, validate_sentry_config
 from app.services.coralogix import CoralogixClient
 from app.services.datadog import DatadogClient, DatadogConfig
@@ -314,6 +316,35 @@ def validate_sentry_integration(
     result = validate_sentry_config(config)
     return IntegrationHealthResult(ok=result.ok, detail=result.detail)
 
+
+def validate_confluence_integration(
+    *,
+    base_url: str,
+    email: str,
+    api_token: str,
+    space_key: str = "",
+) -> IntegrationHealthResult:
+    """Validate Confluence credentials with a lightweight CQL search probe."""
+    try:
+        config = build_confluence_config(
+            {
+                "base_url": base_url,
+                "email": email,
+                "api_token": api_token,
+                "space_key": space_key,
+            }
+        )
+    except Exception as err:
+        return IntegrationHealthResult(ok=False, detail=str(err))
+
+    if not (config.base_url and config.email and config.api_token):
+        return IntegrationHealthResult(
+            ok=False,
+            detail="Confluence base_url, email, and api_token are required.",
+        )
+
+    result = validate_confluence_config(config)
+    return IntegrationHealthResult(ok=result.ok, detail=result.detail)
 
 def validate_notion_integration(*, api_key: str, database_id: str) -> IntegrationHealthResult:
     """Validate Notion connectivity by querying the target database."""

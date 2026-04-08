@@ -105,6 +105,8 @@ _SOURCE_ALIASES: dict[str, str] = {
     "datadog": "datadog_logs",
     "honeycomb": "honeycomb_traces",
     "coralogix": "coralogix_logs",
+    "confluence": "confluence_docs",
+    "confluence_docs": "confluence_docs",
 }
 
 
@@ -537,6 +539,39 @@ def _add_coralogix_logs(
     source_to_id["coralogix_logs"] = eid
 
 
+def _add_confluence_docs(
+    evidence: dict[str, Any],
+    catalog: dict[str, dict],
+    source_to_id: dict[str, str],
+) -> None:
+    confluence_docs = evidence.get("confluence_docs") or []
+    if not confluence_docs:
+        return
+
+    first_doc = confluence_docs[0] if isinstance(confluence_docs[0], dict) else {}
+    title = str(first_doc.get("title") or "Confluence docs").strip()
+    url = str(first_doc.get("url") or "").strip() or None
+    excerpt = str(first_doc.get("excerpt") or "").strip() or None
+    space_key = str(evidence.get("confluence_space_key") or "").strip()
+    query = str(evidence.get("confluence_query") or "").strip()
+
+    summary_parts = [f"{len(confluence_docs)} pages"]
+    if space_key:
+        summary_parts.append(f"space={space_key}")
+    if query:
+        summary_parts.append(f"query={query}")
+
+    eid = "evidence/confluence/docs"
+    catalog[eid] = {
+        "label": title,
+        "url": url,
+        "summary": ", ".join(summary_parts),
+        "snippet": _as_snippet(excerpt),
+    }
+    source_to_id["confluence_docs"] = eid
+    source_to_id.setdefault("confluence", eid)
+
+
 def _build_evidence_catalog(
     ns: _NormalizedState,
 ) -> tuple[dict[str, dict], dict[str, str]]:
@@ -559,6 +594,7 @@ def _build_evidence_catalog(
     _add_datadog_failed_pods(ns.evidence, ns.datadog_site, catalog, source_to_id)
     _add_honeycomb_traces(ns.evidence, catalog, source_to_id)
     _add_coralogix_logs(ns.evidence, catalog, source_to_id)
+    _add_confluence_docs(ns.evidence, catalog, source_to_id)
 
     for i, entry in enumerate(catalog.values()):
         entry["display_id"] = f"E{i + 1}"

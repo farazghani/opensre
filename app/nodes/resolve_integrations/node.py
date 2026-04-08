@@ -23,6 +23,7 @@ from app.integrations.models import (
     GrafanaIntegrationConfig,
     HoneycombIntegrationConfig,
     OpsGenieIntegrationConfig,
+    ConfluenceIntegrationConfig
 )
 from app.integrations.mongodb import build_mongodb_config
 from app.integrations.mongodb_atlas import build_mongodb_atlas_config
@@ -58,6 +59,7 @@ _SERVICE_KEY_MAP = {
     "atlas": "mongodb_atlas",
     "vercel": "vercel",
     "opsgenie": "opsgenie",
+    "confluence": "confluence"
 }
 
 
@@ -299,6 +301,24 @@ def _classify_integrations(
             if opsgenie_config.api_key:
                 resolved["opsgenie"] = opsgenie_config.model_dump()
 
+        elif key == "confluence":
+            try:
+                confluence_config = ConfluenceIntegrationConfig.model_validate({
+                    "base_url": credentials.get("base_url", ""),
+                    "email": credentials.get("email", ""),
+                    "api_token": credentials.get("api_token", ""),
+                    "space_key": credentials.get("space_key", ""),
+                    "integration_id": integration.get("id", ""),
+                })
+            except Exception:
+                continue
+
+            if (
+                confluence_config.base_url
+                and confluence_config.email
+                and confluence_config.api_token
+            ):
+                resolved["confluence"] = confluence_config.model_dump()
         else:
             resolved[key] = {
                 "credentials": credentials,
