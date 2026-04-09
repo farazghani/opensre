@@ -13,8 +13,6 @@ import httpx
 
 from app.integrations.models import ConfluenceIntegrationConfig
 
-ConfluenceConfig = ConfluenceIntegrationConfig
-
 logger = logging.getLogger(__name__)
 
 _DEFAULT_TIMEOUT = 30
@@ -89,12 +87,12 @@ class ConfluenceValidationResult:
     detail: str
 
 
-def build_confluence_config(raw: dict[str, Any] | None) -> ConfluenceConfig:
+def build_confluence_config(raw: dict[str, Any] | None) -> ConfluenceIntegrationConfig:
     """Build a normalized Confluence config object from env/store data."""
-    return ConfluenceConfig.model_validate(raw or {})
+    return ConfluenceIntegrationConfig.model_validate(raw or {})
 
 
-def confluence_config_from_env() -> ConfluenceConfig | None:
+def confluence_config_from_env() -> ConfluenceIntegrationConfig | None:
     """Load a Confluence config from env vars."""
     base_url = os.getenv("CONFLUENCE_BASE_URL", _DEFAULT_CONFLUENCE_BASE_URL).strip()
     email = os.getenv("CONFLUENCE_EMAIL", "").strip()
@@ -111,7 +109,7 @@ def confluence_config_from_env() -> ConfluenceConfig | None:
     )
 
 
-def _get_client(config: ConfluenceConfig) -> httpx.Client:
+def _get_client(config: ConfluenceIntegrationConfig) -> httpx.Client:
     """Create an authenticated httpx client for Confluence API calls."""
     return httpx.Client(
         base_url=config.base_url,
@@ -121,7 +119,7 @@ def _get_client(config: ConfluenceConfig) -> httpx.Client:
     )
 
 
-def validate_confluence_config(config: ConfluenceConfig) -> ConfluenceValidationResult:
+def validate_confluence_config(config: ConfluenceIntegrationConfig) -> ConfluenceValidationResult:
     """Validate Confluence connectivity with a cheap CQL search request."""
     if not (config.base_url and config.email and config.api_token):
         return ConfluenceValidationResult(
@@ -137,7 +135,7 @@ def validate_confluence_config(config: ConfluenceConfig) -> ConfluenceValidation
             ok=True,
             detail=f"Authenticated; space: {config.space_key or 'all'}.",
         )
-    except Exception as err:  # noqa: BLE001
+    except (httpx.RequestError, httpx.HTTPStatusError) as err:
         return ConfluenceValidationResult(ok=False, detail=f"Confluence connection failed: {err}")
     finally:
         client.close()
@@ -338,7 +336,7 @@ class ConfluenceClient:
         return value.replace("\\", "\\\\").replace('"', '\\"')
 
 def search_relevant_documents(
-    config: ConfluenceConfig,
+    config: ConfluenceIntegrationConfig,
     query: str,
     limit: int = 20,
     space_key: str | None = None,

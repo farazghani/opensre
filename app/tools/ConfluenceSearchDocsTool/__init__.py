@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from app.integrations.clients.confluence import (
-    ConfluenceConfig,
     build_confluence_config,
     confluence_config_from_env,
     search_relevant_documents,
 )
+from app.integrations.models import ConfluenceIntegrationConfig
 from app.tools.tool_decorator import tool
 
 
@@ -18,7 +18,7 @@ def _resolve_config(
     confluence_email: str | None,
     confluence_api_token: str | None,
     space_key: str | None = None,
-) -> ConfluenceConfig | None:
+) -> ConfluenceIntegrationConfig | None:
     env_config = confluence_config_from_env()
     if any([confluence_base_url, confluence_email, confluence_api_token]) or (
         space_key and env_config is not None
@@ -113,6 +113,8 @@ def search_confluence_docs(
             "results": [],
         }
 
+    # Confluence API caps search results at 25.
+    limit = min(max(limit, 1), 25)
     result = search_relevant_documents(
         config,
         query=query,

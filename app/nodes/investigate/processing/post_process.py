@@ -475,6 +475,8 @@ def build_evidence_summary(execution_results: dict) -> str:
                 summary_parts.append("github:file contents retrieved")
             elif action_name == "list_github_commits" and data.get("commits"):
                 summary_parts.append(f"github:{len(data['commits'])} commits")
+            elif action_name == "search_confluence_docs" and data.get("results"):
+                summary_parts.append(f"confluence:{len(data['results'])} docs")
         else:
             # Log action failures for debugging
             error_msg = f"{action_name}:FAILED({result.error[:50] if result.error else 'unknown'})"

@@ -2,7 +2,6 @@
 
 from app.integrations.clients.confluence.client import (
     ConfluenceClient,
-    ConfluenceConfig,
     ConfluenceValidationResult,
     build_confluence_config,
     confluence_config_from_env,
@@ -10,10 +9,11 @@ from app.integrations.clients.confluence.client import (
     search_relevant_documents,
     validate_confluence_config,
 )
+from app.integrations.models import ConfluenceIntegrationConfig
 
 __all__ = [
     "ConfluenceClient",
-    "ConfluenceConfig",
+    "ConfluenceIntegrationConfig",
     "ConfluenceValidationResult",
     "build_confluence_config",
     "confluence_config_from_env",

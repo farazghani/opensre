@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app.integrations.clients.confluence import ConfluenceConfig
+from app.integrations.models import ConfluenceIntegrationConfig
 from app.tools.ConfluenceSearchDocsTool import (
     _resolve_config,
     search_confluence_docs,
@@ -12,8 +12,8 @@ from app.tools.ConfluenceSearchDocsTool import (
 
 
 @pytest.fixture()
-def env_config() -> ConfluenceConfig:
-    return ConfluenceConfig.model_validate(
+def env_config() -> ConfluenceIntegrationConfig:
+    return ConfluenceIntegrationConfig.model_validate(
         {
             "base_url": "https://example.atlassian.net",
             "email": "sre@example.com",
@@ -23,7 +23,7 @@ def env_config() -> ConfluenceConfig:
     )
 
 
-def test_resolve_config_prefers_explicit_args_over_env(env_config: ConfluenceConfig) -> None:
+def test_resolve_config_prefers_explicit_args_over_env(env_config: ConfluenceIntegrationConfig) -> None:
     with patch(
         "app.tools.ConfluenceSearchDocsTool.confluence_config_from_env",
         return_value=env_config,
@@ -42,7 +42,7 @@ def test_resolve_config_prefers_explicit_args_over_env(env_config: ConfluenceCon
     assert config.space_key == "OPS"
 
 
-def test_resolve_config_uses_env_when_args_missing(env_config: ConfluenceConfig) -> None:
+def test_resolve_config_uses_env_when_args_missing(env_config: ConfluenceIntegrationConfig) -> None:
     with patch(
         "app.tools.ConfluenceSearchDocsTool.confluence_config_from_env",
         return_value=env_config,
@@ -74,7 +74,7 @@ def test_search_confluence_docs_returns_unavailable_without_credentials() -> Non
     assert "not configured" in result["error"].lower()
 
 
-def test_search_confluence_docs_passes_through_search_result_shape(env_config: ConfluenceConfig) -> None:
+def test_search_confluence_docs_passes_through_search_result_shape(env_config: ConfluenceIntegrationConfig) -> None:
     confluence_result = {
         "success": True,
         "results": [
