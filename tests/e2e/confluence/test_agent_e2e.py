@@ -13,7 +13,6 @@ evidence, and surfaced in the final RCA report with citations.
 from __future__ import annotations
 
 import importlib
-import json
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
@@ -114,9 +113,9 @@ def test_confluence_investigation_pipeline_end_to_end(
     diagnosis_module = importlib.import_module("app.nodes.root_cause_diagnosis.node")
     extract_module = importlib.import_module("app.nodes.extract_alert.extract")
 
-    monkeypatch.setattr(plan_actions_module, "get_llm_for_tools", lambda: _FakeToolLLM())
-    monkeypatch.setattr(diagnosis_module, "get_llm_for_reasoning", lambda: _FakeReasoningLLM())
-    monkeypatch.setattr(extract_module, "get_llm_for_reasoning", lambda: _FakeReasoningLLM())
+    monkeypatch.setattr(plan_actions_module, "get_llm_for_tools", _FakeToolLLM)
+    monkeypatch.setattr(diagnosis_module, "get_llm_for_reasoning", _FakeReasoningLLM)
+    monkeypatch.setattr(extract_module, "get_llm_for_reasoning", _FakeReasoningLLM)
     monkeypatch.setattr("app.nodes.publish_findings.node.send_ingest", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(
         "app.nodes.publish_findings.node.render_report",
