@@ -65,7 +65,7 @@ _SERVICE_KEY_MAP = {
     "mariadb": "mariadb",
     "vercel": "vercel",
     "opsgenie": "opsgenie",
-    "confluence": "confluence"
+    "confluence": "confluence",
     "discord": "discord",
 }
 
@@ -609,7 +609,7 @@ def _load_env_integrations() -> list[dict[str, Any]]:
             }
         )
 
-confluence_base_url = os.getenv("CONFLUENCE_BASE_URL", "").strip()
+    confluence_base_url = os.getenv("CONFLUENCE_BASE_URL", "").strip()
     confluence_email = os.getenv("CONFLUENCE_EMAIL", "").strip()
     confluence_api_token = os.getenv("CONFLUENCE_API_TOKEN", "").strip()
     if confluence_base_url and confluence_email and confluence_api_token:

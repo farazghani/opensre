@@ -515,7 +515,7 @@ _HANDLERS: dict[str, Any] = {
     "gitlab": _setup_gitlab,
     "sentry": _setup_sentry,
     "mongodb": _setup_mongodb,
-    "confluence": _setup_confluence
+    "confluence": _setup_confluence,
     "discord": _setup_discord,
     "postgresql": _setup_postgresql,
 }

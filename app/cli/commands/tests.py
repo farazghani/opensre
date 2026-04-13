@@ -26,8 +26,8 @@ class _TestIdType(click.ParamType):
 
     def shell_complete(
         self,
-        ctx: click.Context,  # noqa: ARG002
-        param: click.Parameter,  # noqa: ARG002
+        _ctx: click.Context,
+        _param: click.Parameter,
         incomplete: str,  # noqa: ARG002
     ) -> list[click.shell_completion.CompletionItem]:
         try:

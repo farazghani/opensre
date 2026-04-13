@@ -422,7 +422,14 @@ def test_run_wizard_configures_confluence(monkeypatch, tmp_path) -> None:
             },
         )
     ]
-    assert synced_env_values == [{}]
+    assert synced_env_values == [
+        {
+            "CONFLUENCE_BASE_URL": "https://example.atlassian.net",
+            "CONFLUENCE_EMAIL": "ops@example.com",
+            "CONFLUENCE_API_TOKEN": "confluence-token",
+            "CONFLUENCE_SPACE_KEY": "SRE",
+        }
+    ]
 
 
 def test_run_wizard_configures_github_mcp_and_sentry(monkeypatch, tmp_path, capsys) -> None:
