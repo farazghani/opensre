@@ -92,7 +92,7 @@ def _collect_memory() -> dict[str, Any] | None:
         if sys.platform == "darwin":
             return _memory_darwin()
     except Exception:  # noqa: BLE001
-        pass
+        return None
     return None
 
 
@@ -181,7 +181,7 @@ def _collect_uptime() -> dict[str, Any] | None:
         if sys.platform == "darwin":
             return _uptime_darwin()
     except Exception:  # noqa: BLE001
-        pass
+        return None
     return None
 
 

@@ -199,17 +199,19 @@ class TestMySQLToolsAvailability:
     def test_mysql_tools_exist_as_modules(self):
         """MySQL tools modules exist and are properly structured."""
         try:
-            import app.tools.MySQLCurrentProcessesTool
-            import app.tools.MySQLReplicationStatusTool
-            import app.tools.MySQLServerStatusTool
-            import app.tools.MySQLSlowQueriesTool
-            import app.tools.MySQLTableStatsTool
+            from app.tools import (
+                MySQLCurrentProcessesTool,
+                MySQLReplicationStatusTool,
+                MySQLServerStatusTool,
+                MySQLSlowQueriesTool,
+                MySQLTableStatsTool,
+            )
 
-            assert app.tools.MySQLServerStatusTool is not None
-            assert app.tools.MySQLCurrentProcessesTool is not None
-            assert app.tools.MySQLReplicationStatusTool is not None
-            assert app.tools.MySQLSlowQueriesTool is not None
-            assert app.tools.MySQLTableStatsTool is not None
+            assert MySQLServerStatusTool is not None
+            assert MySQLCurrentProcessesTool is not None
+            assert MySQLReplicationStatusTool is not None
+            assert MySQLSlowQueriesTool is not None
+            assert MySQLTableStatsTool is not None
         except ImportError as e:
             pytest.fail(f"Failed to import MySQL tool modules: {e}")
 
