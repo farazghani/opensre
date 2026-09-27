@@ -574,13 +574,6 @@ Thanks goes to these amazing people:
         </a>
     </td>
             <td align="center">
-        <a href="https://github.com/darthwade">
-            <img src="https://avatars.githubusercontent.com/u/2220776?v=4" width="100" alt="darthwade"/>
-            <br />
-            <sub><b>darthwade</b></sub>
-        </a>
-    </td>
-            <td align="center">
         <a href="https://github.com/aniruddhaadak80">
             <img src="https://avatars.githubusercontent.com/u/127435065?v=4" width="100" alt="aniruddhaadak80"/>
             <br />
@@ -594,8 +587,6 @@ Thanks goes to these amazing people:
             <sub><b>chaosreload</b></sub>
         </a>
     </td>
-		</tr>
-		<tr>
             <td align="center">
         <a href="https://github.com/paulovitorcl">
             <img src="https://avatars.githubusercontent.com/u/47778440?v=4" width="100" alt="paulovitorcl"/>
@@ -603,6 +594,8 @@ Thanks goes to these amazing people:
             <sub><b>paulovitorcl</b></sub>
         </a>
     </td>
+		</tr>
+		<tr>
             <td align="center">
         <a href="https://github.com/gbsierra">
             <img src="https://avatars.githubusercontent.com/u/182822327?v=4" width="100" alt="gbsierra"/>
